@@ -4,7 +4,7 @@
  * @private
  * @memberof module:workbox-core
  */
-class DBWrapper {
+export class DBWrapper {
   /**
    * Wraps a provided Database.
    *
@@ -37,11 +37,11 @@ class DBWrapper {
   }
 
   /**
-   * @return {Promise}
+   * @return {Promise<Map>}
    */
   getAll() {
     return new Promise((resolve, reject) => {
-      const items = {};
+      const items = new Map();
 
       const transaction = this._db.transaction(this._storename, 'readonly');
       transaction.onerror = () => {
@@ -60,11 +60,35 @@ class DBWrapper {
           return;
         }
 
-        items[cursor.key] = cursor.value;
+        items.set(cursor.key, cursor.value);
         cursor.continue();
       };
     });
   }
+
+
+  /**
+   * Adds an object to the database.
+   * @param {Object} value
+   * @return {Promise}
+   */
+  add(value) {
+    return new Promise((resolve, reject) => {
+      const transaction = this._db.transaction(this._storename, 'readwrite');
+
+      transaction.onerror = () => {
+        // Don't forget to handle errors!
+        reject(transaction.error);
+      };
+
+      transaction.oncomplete = () => {
+        resolve();
+      };
+
+      transaction.objectStore(this._storename).add(value);
+    });
+  }
+
 
   /**
    * Put a value in the database for a given id.
