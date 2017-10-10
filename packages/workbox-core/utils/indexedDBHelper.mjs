@@ -69,6 +69,7 @@ export class DBWrapper {
 
   /**
    * Adds an object to the database.
+   *
    * @param {Object} value
    * @return {Promise}
    */
